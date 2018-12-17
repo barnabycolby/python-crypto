@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+import ciphers
+import crypto_utils
 from converter import Converter
 
 def find_single_byte_xor_key(ciphertext):
     possible_plaintexts_and_scores = []
     for c in range(256):
-        possible_plaintext_bytes = xor_single_byte(c, ciphertext)
+        possible_plaintext_bytes = ciphers.xor_single_byte(c, ciphertext)
 
         # Is it valid text?
         try:
@@ -12,7 +14,7 @@ def find_single_byte_xor_key(ciphertext):
         except UnicodeDecodeError:
             continue
 
-        score = calculate_english_language_score(possible_plaintext)
+        score = crypto_utils.calculate_english_language_score(possible_plaintext)
         possible_plaintexts_and_scores.append((score, c))
 
     best_score, best_key = max(possible_plaintexts_and_scores, key=lambda x: x[0])
