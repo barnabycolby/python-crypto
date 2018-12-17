@@ -52,5 +52,11 @@ def hamming_distance(a, b):
     return sum(a_bit != b_bit for a_bit, b_bit in zip(a_bits, b_bits))
 
 
+def get_block(ciphertext, block_size, block_index):
+    start_index = block_size * block_index
+    end_index = start_index + block_size
+    return ciphertext[start_index:end_index]
+
+
 if __name__ == "__main__":
     print("This is a library and should not be run directly.")
