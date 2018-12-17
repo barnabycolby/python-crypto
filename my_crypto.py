@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import base64
+from converter import Converter
 import sys
 
 CHARACTER_FREQUENCIES = {
@@ -43,26 +44,6 @@ def calculate_english_language_score(string_to_score):
     return score
 
 
-def hex_to_bytes(hex_string):
-    return bytearray.fromhex(hex_string)
-
-
-def bytes_to_hex(the_bytes):
-    return the_bytes.hex()
-
-
-def bytes_to_base64(the_bytes):
-    return base64.b64encode(the_bytes).decode("utf-8")
-
-
-def string_to_bytes(the_string):
-    return the_string.encode("utf-8")
-
-
-def bytes_to_string(the_bytes):
-    return the_bytes.decode("utf-8")
-
-
 def xor_bytes(bytes_a, bytes_b):
     return bytes(a ^ b for (a,b) in zip(bytes_a, bytes_b))
 
@@ -83,13 +64,6 @@ def xor_repeating_key_bytes(plaintext_bytes, key_bytes):
     return xor_bytes(plaintext_bytes, extended_key_bytes)
 
 
-def bytes_to_bits(byte_string):
-    bitstring = ""
-    for byte in byte_string:
-        bitstring += bin(byte).lstrip("0b").zfill(8)
-    return bitstring
-
-
 def find_single_byte_xor_key(ciphertext):
     possible_plaintexts_and_scores = []
     for c in range(256):
@@ -97,7 +71,7 @@ def find_single_byte_xor_key(ciphertext):
 
         # Is it valid text?
         try:
-            possible_plaintext = bytes_to_string(possible_plaintext_bytes)
+            possible_plaintext = Converter(possible_plaintext_bytes).string()
         except UnicodeDecodeError:
             continue
 
