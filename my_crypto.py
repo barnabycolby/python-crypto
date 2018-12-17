@@ -56,11 +56,11 @@ def bytes_to_base64(the_bytes):
 
 
 def string_to_bytes(the_string):
-    return the_string.encode("ascii")
+    return the_string.encode("utf-8")
 
 
 def bytes_to_string(the_bytes):
-    return the_bytes.decode("ascii")
+    return the_bytes.decode("utf-8")
 
 
 def xor_bytes(bytes_a, bytes_b):
@@ -81,6 +81,41 @@ def xor_repeating_key_bytes(plaintext_bytes, key_bytes):
         extended_key_bytes = key_bytes * repeats
 
     return xor_bytes(plaintext_bytes, extended_key_bytes)
+
+
+def bytes_to_bits(byte_string):
+    bitstring = ""
+    for byte in byte_string:
+        bitstring += bin(byte).lstrip("0b").zfill(8)
+    return bitstring
+
+
+def find_single_byte_xor_key(ciphertext):
+    possible_plaintexts_and_scores = []
+    for c in range(256):
+        possible_plaintext_bytes = xor_single_byte(c, ciphertext)
+
+        # Is it valid text?
+        try:
+            possible_plaintext = bytes_to_string(possible_plaintext_bytes)
+        except UnicodeDecodeError:
+            continue
+
+        score = calculate_english_language_score(possible_plaintext)
+        possible_plaintexts_and_scores.append((score, c))
+
+    best_score, best_key = max(possible_plaintexts_and_scores, key=lambda x: x[0])
+    return best_key
+
+
+def hamming_distance(a, b):
+    assert len(a) == len(b)
+    
+    # First convert to bitstrings.
+    a_bits = bytes_to_bits(a)
+    b_bits = bytes_to_bits(b)
+
+    return sum(a_bit != b_bit for a_bit, b_bit in zip(a_bits, b_bits))
 
 
 if __name__ == "__main__":
