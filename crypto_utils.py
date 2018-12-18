@@ -55,7 +55,14 @@ def hamming_distance(a, b):
 def get_block(ciphertext, block_size, block_index):
     start_index = block_size * block_index
     end_index = start_index + block_size
-    return ciphertext[start_index:end_index]
+    return bytes(ciphertext[start_index:end_index])
+
+
+def split_into_blocks(ciphertext, block_size):
+    number_of_blocks = len(ciphertext) // block_size
+    assert len(ciphertext) == number_of_blocks * block_size
+
+    return [get_block(ciphertext, block_size, i) for i in range(number_of_blocks)]
 
 
 if __name__ == "__main__":

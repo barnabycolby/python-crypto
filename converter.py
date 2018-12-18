@@ -22,7 +22,7 @@ class Converter:
 
     
     def bytes(self):
-        return self.underlying_bytes
+        return bytes(self.underlying_bytes)
 
 
     def base64(self):

@@ -19,3 +19,10 @@ def test_get_block():
     assert crypto_utils.get_block(ciphertext, 2, 2) == b"CC"
     assert crypto_utils.get_block(ciphertext, 4, 1) == b"CCDD"
     assert crypto_utils.get_block(ciphertext, 2, 0) == b"AA"
+
+
+def test_split_into_blocks():
+    ciphertext = b"AABBCCDDEEFF"
+    expected = [b"AA", b"BB", b"CC", b"DD", b"EE", b"FF"]
+    actual = crypto_utils.split_into_blocks(ciphertext, 2)
+    assert expected == actual

@@ -63,5 +63,10 @@ def transpose(ciphertext, blocksize):
     return [bytes(bytearray(block)) for block in blocks]
 
 
+def detect_ecb_mode(ciphertext, block_size):
+    blocks = crypto_utils.split_into_blocks(ciphertext, block_size)
+    return len(set(blocks)) != len(blocks)
+
+
 if __name__ == "__main__":
     print("This is a library and should not be run directly.")
