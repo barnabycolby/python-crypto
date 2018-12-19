@@ -11,6 +11,8 @@ class Converter:
             self.underlying_bytes = the_input.encode("utf-8")
         elif input_type == "hex" and type(the_input) is str:
             self.underlying_bytes = bytearray.fromhex(the_input)
+        elif input_type == "base64" and type(the_input) is str:
+            self.underlying_bytes = base64.b64decode(the_input)
         elif type(the_input) is bytes:
             self.underlying_bytes = the_input
         else:

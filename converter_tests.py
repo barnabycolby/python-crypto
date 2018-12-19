@@ -19,6 +19,12 @@ def test_bytes_to_base64():
     assert expected == actual
 
 
+def test_base64_to_bytes():
+    expected = b"\x2f\x5b\x01\x24"
+    actual = Converter("L1sBJA==", input_type="base64").bytes()
+    assert expected == actual
+
+
 def test_string_to_bytes():
     expected = b"writing_tests"
     actual = Converter("writing_tests").bytes()
