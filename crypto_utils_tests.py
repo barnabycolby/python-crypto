@@ -32,28 +32,32 @@ def test_pkcs7_pad_incomplete_block():
     """
     Taken from cryptopals set 2 challenge 9.
     """
-    incomplete_block = b"YELLOW SUBMARINE"
-    expected = b"YELLOW SUBMARINE\x04\x04\x04\x04"
-    actual = crypto_utils.pkcs7_pad(incomplete_block, 20)
+    block_length = 20
+    incomplete_block = b"A" * block_length + b"YELLOW SUBMARINE"
+    expected = incomplete_block + b"\x04\x04\x04\x04"
+    actual = crypto_utils.pkcs7_pad(incomplete_block, block_length)
     assert expected == actual
 
 
 def test_pkcs7_pad_full_block():
-    block = b"YELLOW SUBMARINE"
-    expected = b"YELLOW SUBMARINE" + b"\x10" * 0x10
-    actual = crypto_utils.pkcs7_pad(block, 16)
+    block_length = 16
+    block = b"A" * block_length + b"YELLOW SUBMARINE"
+    expected = block + b"\x10" * block_length
+    actual = crypto_utils.pkcs7_pad(block, block_length)
     assert expected == actual
 
 
 def test_pkcs7_unpad_incomplete_block():
-    padded_block = b"YELLOW SUBMARINE\x04\x04\x04\x04"
-    expected = b"YELLOW SUBMARINE"
-    actual = crypto_utils.pkcs7_unpad(padded_block, 20)
+    block_length = 20
+    expected = b"A" * block_length + b"YELLOW SUBMARINE"
+    padded_block = expected + b"\x04\x04\x04\x04"
+    actual = crypto_utils.pkcs7_unpad(padded_block, block_length)
     assert expected == actual
 
 
 def test_pkcs7_unpad_full_block():
-    padded_block = b"YELLOW SUBMARINE" + b"\x10" * 0x10
-    expected = b"YELLOW SUBMARINE"
-    actual = crypto_utils.pkcs7_unpad(padded_block, 16)
+    block_length = 16
+    expected = b"A" * block_length + b"YELLOW SUBMARINE"
+    padded_block = expected + b"\x10" * 0x10
+    actual = crypto_utils.pkcs7_unpad(padded_block, block_length)
     assert expected == actual
