@@ -68,5 +68,18 @@ def detect_ecb_mode(ciphertext, block_size):
     return len(set(blocks)) != len(blocks)
 
 
+def find_block_size(oracle):
+    def find_size_change(starting_length):
+        plaintext = b"A" * starting_length
+        initial_size = len(oracle(plaintext))
+
+        while len(oracle(plaintext)) is initial_size:
+            plaintext += b"A"
+        return len(plaintext) - starting_length
+
+    first_bump_length = find_size_change(0)
+    return find_size_change(first_bump_length)
+
+
 if __name__ == "__main__":
     print("This is a library and should not be run directly.")

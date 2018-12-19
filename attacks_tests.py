@@ -4,6 +4,8 @@ import base64
 import ciphers
 import os
 from converter import Converter
+from Crypto.Cipher import AES
+from Crypto.Util import Padding
 
 TEST_FILES = "test_files"
 
@@ -50,6 +52,18 @@ def test_detect_ecb_mode():
     non_ecb_ciphertext_hex = "8a10247f90d0a05538888ad6205882196f5f6d05c21ec8dca0cb0be02c3f8b09e382963f443aa514daa501257b09a36bf8c4c392d8ca1bf4395f0d5f2542148c7e5ff22237969874bf66cb85357ef99956accf13ba1af36ca7a91a50533c4d89b7353f908c5a166774293b0bf6247391df69c87dacc4125a99ec417221b58170e633381e3847c6b1c28dda2913c011e13fc4406f8fe73bbf78e803e1d995ce4d"
     non_ecb_ciphertext = Converter(non_ecb_ciphertext_hex, input_type="hex").bytes()
     assert not attacks.detect_ecb_mode(non_ecb_ciphertext, 16)
+
+
+def test_find_block_size():
+    block_size = 16
+    key = os.urandom(block_size)
+
+    def oracle(plaintext):
+        extended_plaintext = Padding.pad(b"AAAAA" + plaintext, block_size)
+        encryptor = AES.new(key, AES.MODE_ECB)
+        return encryptor.encrypt(extended_plaintext)
+
+    assert block_size == attacks.find_block_size(oracle)
 
 
 def read_file_bytes(path):
