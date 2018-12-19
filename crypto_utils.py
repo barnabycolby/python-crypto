@@ -71,5 +71,10 @@ def pkcs7_pad(block_to_pad, block_length):
     return block_to_pad + padding
 
 
+def pkcs7_unpad(plaintext_to_unpad, block_length):
+    amount_of_padding = plaintext_to_unpad[-1]
+    return plaintext_to_unpad[:-amount_of_padding]
+
+
 if __name__ == "__main__":
     print("This is a library and should not be run directly.")

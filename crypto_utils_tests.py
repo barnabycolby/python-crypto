@@ -28,7 +28,7 @@ def test_split_into_blocks():
     assert expected == actual
 
 
-def test_pkcs7_incomplete_block():
+def test_pkcs7_pad_incomplete_block():
     """
     Taken from cryptopals set 2 challenge 9.
     """
@@ -38,8 +38,22 @@ def test_pkcs7_incomplete_block():
     assert expected == actual
 
 
-def test_pkcs7_full_block():
+def test_pkcs7_pad_full_block():
     block = b"YELLOW SUBMARINE"
     expected = b"YELLOW SUBMARINE" + b"\x10" * 0x10
     actual = crypto_utils.pkcs7_pad(block, 16)
+    assert expected == actual
+
+
+def test_pkcs7_unpad_incomplete_block():
+    padded_block = b"YELLOW SUBMARINE\x04\x04\x04\x04"
+    expected = b"YELLOW SUBMARINE"
+    actual = crypto_utils.pkcs7_unpad(padded_block, 20)
+    assert expected == actual
+
+
+def test_pkcs7_unpad_full_block():
+    padded_block = b"YELLOW SUBMARINE" + b"\x10" * 0x10
+    expected = b"YELLOW SUBMARINE"
+    actual = crypto_utils.pkcs7_unpad(padded_block, 16)
     assert expected == actual
