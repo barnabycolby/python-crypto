@@ -26,3 +26,20 @@ def test_split_into_blocks():
     expected = [b"AA", b"BB", b"CC", b"DD", b"EE", b"FF"]
     actual = crypto_utils.split_into_blocks(ciphertext, 2)
     assert expected == actual
+
+
+def test_pkcs7_incomplete_block():
+    """
+    Taken from cryptopals set 2 challenge 9.
+    """
+    incomplete_block = b"YELLOW SUBMARINE"
+    expected = b"YELLOW SUBMARINE\x04\x04\x04\x04"
+    actual = crypto_utils.pkcs7_pad(incomplete_block, 20)
+    assert expected == actual
+
+
+def test_pkcs7_full_block():
+    block = b"YELLOW SUBMARINE"
+    expected = b"YELLOW SUBMARINE" + b"\x10" * 0x10
+    actual = crypto_utils.pkcs7_pad(block, 16)
+    assert expected == actual

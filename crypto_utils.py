@@ -65,5 +65,11 @@ def split_into_blocks(ciphertext, block_size):
     return [get_block(ciphertext, block_size, i) for i in range(number_of_blocks)]
 
 
+def pkcs7_pad(block_to_pad, block_length):
+    padding_size = block_length - (len(block_to_pad) % block_length)
+    padding = bytes([padding_size] * padding_size)
+    return block_to_pad + padding
+
+
 if __name__ == "__main__":
     print("This is a library and should not be run directly.")
