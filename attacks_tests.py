@@ -66,6 +66,32 @@ def test_find_block_size():
     assert block_size == attacks.find_block_size(oracle)
 
 
+def test_find_cipher_secret_size():
+    block_size = 16
+    key = os.urandom(block_size)
+    secret_length = 22
+
+    def oracle(plaintext):
+        extended_plaintext = Padding.pad(b"A" * secret_length + plaintext, block_size)
+        encryptor = AES.new(key, AES.MODE_ECB)
+        return encryptor.encrypt(extended_plaintext)
+
+    assert secret_length == attacks.find_cipher_secret_size(oracle)
+
+
+def test_decrypt_ecb_appended_secret():
+    block_size = 16
+    key = os.urandom(block_size)
+    secret = b"SECRET_KEY_THAT_IS_LONGER_THAN_THE_BLOCK_SIZE"
+
+    def oracle(plaintext):
+        extended_plaintext = Padding.pad(plaintext + secret, block_size)
+        encryptor = AES.new(key, AES.MODE_ECB)
+        return encryptor.encrypt(extended_plaintext)
+
+    assert secret == attacks.decrypt_ecb_appended_secret(oracle)
+
+
 def read_file_bytes(path):
     with open(path, "rb") as the_file:
         return the_file.read()
