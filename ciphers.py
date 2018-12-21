@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from Crypto.Cipher import AES
+import crypto_utils
 
 def xor_bytes(bytes_a, bytes_b):
     return bytes(a ^ b for (a,b) in zip(bytes_a, bytes_b))
@@ -18,6 +20,22 @@ def xor_repeating_key_bytes(plaintext_bytes, key_bytes):
         extended_key_bytes = key_bytes * repeats
 
     return xor_bytes(plaintext_bytes, extended_key_bytes)
+
+
+def encrypt_aes_ecb_128(plaintext, key):
+    block_size = 16
+    encryptor = AES.new(key, AES.MODE_ECB)
+
+    padded_plaintext = crypto_utils.pkcs7_pad(plaintext, block_size)
+    return encryptor.encrypt(padded_plaintext)
+
+
+def decrypt_aes_ecb_128(ciphertext, key):
+    block_size = 16
+    decryptor = AES.new(key, AES.MODE_ECB)
+
+    padded_plaintext = decryptor.decrypt(ciphertext)
+    return crypto_utils.pkcs7_unpad(padded_plaintext, block_size)
 
 
 if __name__ == "__main__":
