@@ -82,7 +82,8 @@ def test_find_cipher_secret_size():
 def test_find_cipher_prefix_size():
     block_size = 16
     key = os.urandom(block_size)
-    prefix = b"ABCDEFGHIJK" # 11
+    # It's important to check that the function works when the prefix is larger than the block size.
+    prefix = b"A" * block_size + b"ABCDEFGHIJK" # 11
     secret = b"TRGT"
 
     def oracle(plaintext):

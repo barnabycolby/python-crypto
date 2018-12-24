@@ -97,6 +97,7 @@ def find_cipher_secret_size(oracle):
 
 def find_cipher_prefix_size(oracle):
     block_size = find_block_size(oracle)
+    number_of_blocks = len(oracle(b"")) // block_size
     length_of_prefix_and_secret = block_size - find_cipher_size_change(oracle, 0)
 
     # We attempt to detect the prefix length as follows:
@@ -123,22 +124,30 @@ def find_cipher_prefix_size(oracle):
     new_block = b""
     first_block_stopped_changing = False
 
-    for i in range(block_size * 2):
-        ciphertext = oracle(plaintext)
+    for block_index in range(number_of_blocks):
+        for i in range(block_size * 2):
+            ciphertext = oracle(plaintext)
 
-        previous_block = new_block
-        new_block = ciphertext[:block_size]
+            previous_block = new_block
+            new_block = crypto_utils.get_block(ciphertext, block_size, block_index)
 
-        if new_block == previous_block:
+            if new_block == previous_block:
+                plaintext_length_to_stop_block_changing = len(plaintext) - 1
+
+                if plaintext_length_to_stop_block_changing != 0:
+                    first_block_stopped_changing = True
+
+                break
+
+            plaintext += b"A"
+        else:
+            raise "Something went wrong!"
+
+        if first_block_stopped_changing:
             break
 
-        plaintext += b"A"
-    else:
-        raise "Something went wrong!"
-
-    plaintext_length_to_stop_block_changing = len(plaintext) - 1
-
-    return block_size - plaintext_length_to_stop_block_changing
+    prefix_length_in_last_block = block_size - plaintext_length_to_stop_block_changing
+    return (block_size * block_index) + prefix_length_in_last_block
 
 
 def decrypt_ecb_appended_secret(oracle):
