@@ -79,6 +79,20 @@ def test_find_cipher_secret_size():
     assert secret_length == attacks.find_cipher_secret_size(oracle)
 
 
+def test_find_cipher_prefix_size():
+    block_size = 16
+    key = os.urandom(block_size)
+    prefix = b"ABCDEFGHIJK" # 11
+    secret = b"TRGT"
+
+    def oracle(plaintext):
+        extended_plaintext = Padding.pad(prefix + plaintext + secret, block_size)
+        encryptor = AES.new(key, AES.MODE_ECB)
+        return encryptor.encrypt(extended_plaintext)
+
+    assert len(prefix) == attacks.find_cipher_prefix_size(oracle)
+
+
 def test_decrypt_ecb_appended_secret():
     block_size = 16
     key = os.urandom(block_size)

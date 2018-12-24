@@ -95,6 +95,52 @@ def find_cipher_secret_size(oracle):
     return empty_size - first_bump_length
 
 
+def find_cipher_prefix_size(oracle):
+    block_size = find_block_size(oracle)
+    length_of_prefix_and_secret = block_size - find_cipher_size_change(oracle, 0)
+
+    # We attempt to detect the prefix length as follows:
+    #
+    # ABCDTRGT|
+    # ABCD1TRG|T-------| # New block, so therefore length of (random-prefix + target-bytes) is 8.
+    # ABCD12TR|GT------|
+    # ABCD123T|RGT-----|
+    # ABCD1234|TRGT----|
+    # ABCD1234|5TRGT---| # This is the first time that the second last block stops changing, which means that our extended user input is now only affecting the later block.
+    # ABCD1234|56TRGT--|
+    # ABCD1234|567TRGT-|
+    # ABCD1234|5678TRGT|
+    # ABCD1234|56781TRG|T-------|
+    # ABCD1234|567812TR|GT------|
+    # ABCD1234|5678123T|RGT-----|
+    # ABCD1234|56781234|TRGT----|
+    # ABCD1234|56781234|5TRGT---|
+    # ABCD1234|56781234|56TRGT--|
+    # ABCD1234|56781234|567TRGT-|
+    # ABCD1234|56781234|5678TRGT|
+    plaintext = b""
+    previous_block = b""
+    new_block = b""
+    first_block_stopped_changing = False
+
+    for i in range(block_size * 2):
+        ciphertext = oracle(plaintext)
+
+        previous_block = new_block
+        new_block = ciphertext[:block_size]
+
+        if new_block == previous_block:
+            break
+
+        plaintext += b"A"
+    else:
+        raise "Something went wrong!"
+
+    plaintext_length_to_stop_block_changing = len(plaintext) - 1
+
+    return block_size - plaintext_length_to_stop_block_changing
+
+
 def decrypt_ecb_appended_secret(oracle):
     block_size = find_block_size(oracle)
     secret_size = find_cipher_secret_size(oracle)
