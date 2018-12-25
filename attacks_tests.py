@@ -66,34 +66,6 @@ def test_find_block_size():
     assert block_size == attacks.find_block_size(oracle)
 
 
-def test_find_cipher_secret_size():
-    block_size = 16
-    key = os.urandom(block_size)
-    secret_length = 22
-
-    def oracle(plaintext):
-        extended_plaintext = Padding.pad(b"A" * secret_length + plaintext, block_size)
-        encryptor = AES.new(key, AES.MODE_ECB)
-        return encryptor.encrypt(extended_plaintext)
-
-    assert secret_length == attacks.find_cipher_secret_size(oracle)
-
-
-def test_find_cipher_prefix_size():
-    block_size = 16
-    key = os.urandom(block_size)
-    # It's important to check that the function works when the prefix is larger than the block size.
-    prefix = b"A" * block_size + b"ABCDEFGHIJK" # 11
-    secret = b"TRGT"
-
-    def oracle(plaintext):
-        extended_plaintext = Padding.pad(prefix + plaintext + secret, block_size)
-        encryptor = AES.new(key, AES.MODE_ECB)
-        return encryptor.encrypt(extended_plaintext)
-
-    assert len(prefix) == attacks.find_cipher_prefix_size(oracle)
-
-
 def test_decrypt_ecb_appended_secret():
     block_size = 16
     key = os.urandom(block_size)
@@ -104,7 +76,23 @@ def test_decrypt_ecb_appended_secret():
         encryptor = AES.new(key, AES.MODE_ECB)
         return encryptor.encrypt(extended_plaintext)
 
-    assert secret == attacks.decrypt_ecb_appended_secret(oracle)
+    the_attack = attacks.ECBByteByByteAttack(oracle)
+    assert secret == the_attack.recover_secret()
+
+
+def test_decrypt_ecb_appended_secret_and_prefix():
+    block_size = 16
+    key = os.urandom(block_size)
+    secret = b"SECRET_KEY_THAT_IS_LONGER_THAN_THE_BLOCK_SIZE"
+    prefix = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    def oracle(plaintext):
+        extended_plaintext = Padding.pad(prefix + plaintext + secret, block_size)
+        encryptor = AES.new(key, AES.MODE_ECB)
+        return encryptor.encrypt(extended_plaintext)
+
+    the_attack = attacks.ECBByteByByteAttack(oracle)
+    assert secret == the_attack.recover_secret()
 
 
 def read_file_bytes(path):
