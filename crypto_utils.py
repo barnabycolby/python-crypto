@@ -73,6 +73,13 @@ def pkcs7_pad(block_to_pad, block_length):
 
 def pkcs7_unpad(plaintext_to_unpad, block_length):
     amount_of_padding = plaintext_to_unpad[-1]
+
+    # Check that the padding is valid.
+    padding_bytes = plaintext_to_unpad[-amount_of_padding:]
+    expected_padding = bytes([amount_of_padding] * amount_of_padding)
+    if padding_bytes != expected_padding:
+        raise "Invalid padding."
+
     return plaintext_to_unpad[:-amount_of_padding]
 
 

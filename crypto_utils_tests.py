@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 import crypto_utils
+import pytest
 
 def test_english_language_score():
     english_score = crypto_utils.calculate_english_language_score("a tribe called quest")
@@ -61,3 +62,13 @@ def test_pkcs7_unpad_full_block():
     padded_block = expected + b"\x10" * 0x10
     actual = crypto_utils.pkcs7_unpad(padded_block, block_length)
     assert expected == actual
+
+
+def test_pkcs7_unpad_invalid():
+    block_length = 16
+
+    with pytest.raises(Exception):
+        crypto_utils.pkcs7_unpad(b"ICE ICE BABY\x05\x05\x05\x05", block_length)
+
+    with pytest.raises(Exception):
+        crypto_utils.pkcs7_unpad(b"ICE ICE BABY\x01\x02\x03\x04", block_length)
